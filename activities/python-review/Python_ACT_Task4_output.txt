@@ -1,0 +1,11 @@
+Future dates: 3
+July 2026
+June 2027
+November 2345
+
+Present dates: 1
+January 2026
+
+Past dates: 2
+October 1965
+February 2004
