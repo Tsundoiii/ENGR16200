@@ -1,3 +1,33 @@
+# Python Review Activity
+# File: Python_ACT_Task4_chen5708.py
+# Description: Program for sorting dates
+# Date: 12 January 2026
+# By: Aurora Chen
+# chen5708
+# Shushil Rao
+# rao320
+# Porter Stone
+# stonpj01
+# Caroline Spoelker
+# cspoelke
+# Section: 2
+# 
+# ELECTRONIC SIGNATURE
+# Full Name team member 1
+# Full Name team member 2
+# Full Name team member 3
+# Full Name team member 4
+# 
+# The electronic signatures above indicate that the program
+# submitted for evaluation is the combined effort of all
+# team members and that each member of the team was an
+# equal participant in its creation. In addition, each
+# member of the team has a general understanding of
+# all aspects of the program development and execution.
+# 
+# Sorts a given file of dates into past, present, and
+# future and outputs them to another file.
+
 from datetime import datetime
 
 months = {
