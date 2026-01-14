@@ -25,7 +25,7 @@ current_year = datetime.today().year
 with open("Python_ACT_Task4_input.txt") as fid:
     lines = [[date.split()[0], int(date.split()[1])] for date in fid.readlines()]
 
-def Sort_Dates(dates: list[str]):
+def Sort_Dates(dates: list[tuple[str, int]]):
     for date in dates:
         month = months[date[0]]
         year = date[1]
