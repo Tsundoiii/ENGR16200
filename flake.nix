@@ -15,8 +15,8 @@
     {
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
-          python315
-          rustdesk
+          python3
+          remmina
         ];
       };
     };
