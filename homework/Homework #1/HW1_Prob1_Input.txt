@@ -1,0 +1,4 @@
+Case#    Rate   InitialPopulation    Time
+16200    0.96    170                 3.0
+20001    -0.12   5280                12.5
+35791    0.40    32                  21.0
