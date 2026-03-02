@@ -1,0 +1,33 @@
+MEMORANDUM:
+To: Dr. Leandra Wilson, Lead Engineer, L3Harris Disaster Response Division
+From: Team {XX}
+Subject: REQUEST FOR ADDITIONAL INFORMATION
+
+Team {XX} requests answers to the following questions from the Project Oversight Team.
+
+Sincerely,
+
+Team {XX}
+
+============================================================
+Team Member Names:
+1) {Team Member 1}
+2) {Team Member 2}
+3) {Team Member 3}
+4) {Team Member 4}
+============================================================
+Question 1:
+
+============================================================
+Question 2:
+
+============================================================
+Question 3:
+
+============================================================
+Question 4:
+
+============================================================
+Question 5:
+
+============================================================

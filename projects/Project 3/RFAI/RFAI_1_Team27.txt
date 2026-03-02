@@ -1,0 +1,33 @@
+MEMORANDUM:
+To: Dr. Leandra Wilson, Lead Engineer, L3Harris Disaster Response Division
+From: Team 27
+Subject: REQUEST FOR ADDITIONAL INFORMATION
+
+Team 27 requests answers to the following questions from the Project Oversight Team.
+
+Sincerely,
+
+Team 27
+
+============================================================
+Team Member Names:
+1) Aurora Chen
+2) Kai Hillery
+3) Noopura Nambiar
+4) Ella Walsworth
+============================================================
+Question 1:
+Are there specific dimensions of the cargo that can be used to model the cargo container?
+============================================================
+Question 2:
+How generic/specific can symbols be if they are supposed to be entirely original?
+============================================================
+Question 3:
+What is the distance between walls in the maze?
+============================================================
+Question 4:
+Does the robot carry all cargo at once or do they have to take multiple trips?
+============================================================
+Question 5:
+
+============================================================
