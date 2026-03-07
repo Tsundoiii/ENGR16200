@@ -7,7 +7,7 @@ class InfraredSensor:
     def __init__(self) -> None:
         """Create infrared sensor."""
 
-        self.sensor = IRSensor(26)
+        self.sensor = IRSensor(0, 1)
 
     @property
     def left(self) -> float:
@@ -20,3 +20,13 @@ class InfraredSensor:
         """Left infrared sensor value."""
 
         return self.sensor.value2
+    
+    @property
+    def value(self) -> float:
+        if self.left is None or self.right is None:
+            return None
+        
+        return (self.left + self.right) / 2
+    
+    def log(self):
+        print(f"[InfraredSensor] {self.value}")

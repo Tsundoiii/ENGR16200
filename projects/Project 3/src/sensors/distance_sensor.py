@@ -13,4 +13,4 @@ class DistanceSensor:
     def distance(self) -> float | None:
         """Distance of nearest object in front of sensor (in cm), or None if no objects detected."""
 
-        return self.sensor.getDist()
+        return self.sensor.getDist

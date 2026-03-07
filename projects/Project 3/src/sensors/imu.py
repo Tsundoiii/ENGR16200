@@ -10,12 +10,14 @@ class IMU:
 
         self.sensor = IMUSensor()
 
-    @property
     def angle(self) -> float:
-        pass
+        return self.sensor.getGyro()[2]
 
     @property
     def magnetic_field(self) -> float:
         """Magnitude of magnetic field (in mT)."""
 
         return norm(self.sensor.getMag())
+
+    def log(self) -> str:
+        return f"[IMU] (Angle) {self.angle()} deg / s"
