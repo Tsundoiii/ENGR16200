@@ -15,7 +15,13 @@
     {
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
-          python3
+          (python3.withPackages (
+            python-pkgs: with python-pkgs; [
+              numpy
+              matplotlib
+            ]
+          ))
+
           remmina
         ];
       };
