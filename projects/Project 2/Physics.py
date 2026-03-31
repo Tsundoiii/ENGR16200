@@ -18,8 +18,8 @@ def e_field_force(charge: float, electric_field: float) -> float:
 velocity = 0 #m/s
 fluid_density = 1.225 #kg/m^3
 drag_coefficient = 0.47
-diameter = 2.5e-6 #m (2.5e-6 or 10e-6)
-effeciency = 0.5 #% (0.5 or 0.7) 
+diameter = 10e-6 #m (2.5e-6 or 10e-6)
+effeciency = 0.7 #% (0.5 or 0.7) 
 particle_volume = (math.pi/6) * diameter**3 #m^3
 particle_density = 1200 #kg/m^3
 particle_mass = particle_density * particle_volume
