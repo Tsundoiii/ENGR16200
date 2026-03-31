@@ -18,7 +18,8 @@ def e_field_force(charge: float, electric_field: float) -> float:
 velocity = 0 #m/s
 fluid_density = 1.225 #kg/m^3
 drag_coefficient = 0.47
-diameter = 5e-6 #m
+diameter = 5e-6 #m (2.5e-6 or 10e-6)
+effeciency = 0.5 #% (0.5 or 0.7) 
 particle_volume = (math.pi/6) * diameter**3 #m^3
 particle_density = 1200 #kg/m^3
 particle_mass = particle_density * particle_volume
@@ -27,7 +28,7 @@ time = 0 #s
 charge = 1.6e-16 #C
 electric_field = 1e5 #V/m
 viscosity = 1.81e-5 #Pa.s
-fan_energy = 1500 #W
+fan_energy = 1300 #W
 Tower_height = 7 #m
 tower_radius = 1.5 #m
 tower_volume = math.pi * tower_radius**2 * Tower_height #m^3
@@ -62,9 +63,10 @@ if choice == "cotter":
             time += timestep
 
         if time <= 3e10:
-            cleaning_rate = (tower_volume / time)*3600 #m^3/h
+            cleaning_rate = (tower_volume / time)*3600*effeciency #m^3/h
         else:
             cleaning_rate = 0
+
 
         kilowatts_energy = (fan_energy / 1000) + (electric_field_energy / 1000)
         return cleaning_rate, kilowatts_energy
@@ -123,13 +125,13 @@ elif choice == "regular":
         time += timestep
 
     if time <= 3e10:
-        cleaning_rate = (tower_volume / time)*3600 #m^3/h
+        cleaning_rate = (tower_volume / time)*3600*effeciency #m^3/h
     else:
         cleaning_rate = 0
 
-    kilowatts_energy = (fan_energy / 1000) + (electric_field_energy / 1000)
+    kilowatts_energy = ((fan_energy / 1000) + (electric_field_energy / 1000))
     
-    print(f"Time to capture particle: {time:.5f} s, Final velocity: {velocity:.5f} m/s, Volume cleaned per hour: {cleaning_rate:.2f} m^3/h, Energy used: {kilowatts_energy:.2f} kW") 
+    print(f"Time to capture particle: {time:.5f} s, Final velocity: {velocity:.5f} m/s, Volume cleaned per hour: {cleaning_rate:.2f} m^3/h, Energy used: {kilowatts_energy:.2f} kWh") 
     
 
 elif choice == "own":
@@ -158,13 +160,13 @@ elif choice == "own":
         time += timestep
 
     if time <= 3e10:
-        cleaning_rate = (tower_volume / time)*3600*number_of_towers #m^3/h
+        cleaning_rate = (tower_volume / time)*3600*number_of_towers*effeciency #m^3/h
     else:
         cleaning_rate = 0
 
     kilowatts_energy = ((fan_energy / 1000) + (electric_field_energy / 1000)) * number_of_towers
     
-    print(f"Time to capture particle: {time:.5f} s, Final velocity: {velocity:.5f} m/s, Volume cleaned per hour: {cleaning_rate:.2f} m^3/h, Energy used: {kilowatts_energy:.2f} kW") 
+    print(f"Time to capture particle: {time:.5f} s, Final velocity: {velocity:.5f} m/s, Volume cleaned per hour: {cleaning_rate:.2f} m^3/h, Energy used: {kilowatts_energy:.2f} kWh") 
     
 
 else:
