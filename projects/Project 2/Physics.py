@@ -18,7 +18,7 @@ def e_field_force(charge: float, electric_field: float) -> float:
 velocity = 0 #m/s
 fluid_density = 1.225 #kg/m^3
 drag_coefficient = 0.47
-diameter = 5e-6 #m (2.5e-6 or 10e-6)
+diameter = 2.5e-6 #m (2.5e-6 or 10e-6)
 effeciency = 0.5 #% (0.5 or 0.7) 
 particle_volume = (math.pi/6) * diameter**3 #m^3
 particle_density = 1200 #kg/m^3
@@ -30,7 +30,7 @@ electric_field = 1e5 #V/m
 viscosity = 1.81e-5 #Pa.s
 fan_energy = 1300 #W
 Tower_height = 7 #m
-tower_radius = 1.5 #m
+tower_radius = 1.678 #m
 tower_volume = math.pi * tower_radius**2 * Tower_height #m^3
 tower_panel_surface_area = 2 * math.pi * tower_radius * Tower_height #m^2
 power_density = 2.5 #W/m^2
