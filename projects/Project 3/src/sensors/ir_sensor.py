@@ -20,13 +20,14 @@ class InfraredSensor:
         """Left infrared sensor value."""
 
         return self.sensor.value2
-    
+
     @property
     def value(self) -> float:
-        if self.left is None or self.right is None:
-            return None
-        
+        """Average value of left and right IR sensors."""
+
         return (self.left + self.right) / 2
-    
-    def log(self):
-        print(f"[InfraredSensor] {self.value}")
+
+    def log(self) -> None:
+        """Log infrared sensor average value."""
+
+        print(f"[Infrared Sensor] {self.value}")

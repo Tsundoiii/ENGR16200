@@ -19,9 +19,9 @@ class Drivetrain:
         self.wheel_radius = 3.4
         self.gear_ratio = 40 / 24
         self.unit_distance = 10
-        
+
         self.direction = 0
-        
+
         self.x = 0
         self.y = 0
 
@@ -29,8 +29,8 @@ class Drivetrain:
         """
         Drive each drivetrain motor with different speeds. Positive speed indicates clockwise rotation of the motor.
 
-        :param left_speed: speed of left motor
-        :param right_speed: speed of right motor
+        :param left_speed: speed of left motor in [-1, 1]
+        :param right_speed: speed of right motor in [-1, 1]
         """
 
         self.left_motor.pwm(left_speed)
@@ -38,16 +38,16 @@ class Drivetrain:
 
     def drive_with_speed(self, speed: float) -> None:
         """
-        Drive drivetrain with a speed. Positive speed indicates forward motion relative to robot.
+        Drive with speed. Positive speed indicates forward motion relative to GEARS.
 
-        :param speed: speed to drive at
+        :param speed: speed to drive at in [-1, 1]
         """
 
         self.drive_differential(speed, -speed)
 
     def drive_distance(self, distance: float) -> None:
         """
-        Drive drivetrain for a distance. Positive distance indicates forward motion relative to robot.
+        Drive for a distance. Positive distance indicates forward motion relative to GEARS.
 
         :param distance: distance to drive to (in cm)
         """
@@ -63,16 +63,18 @@ class Drivetrain:
 
     def drive_units(self, units: float) -> None:
         """
-        Drive drivetrain for a number of unit distances. Positive distance indicates forward motion relative to robot.
+        Drive for a number of unit distances. Positive distance indicates forward motion relative to GEARS.
 
         :param units: number of units to drive to
         """
 
         self.drive_distance(units * self.unit_distance)
-        
+
     def drive_unit(self) -> None:
+        """Drive one unit distance. Positive distance indicates forward motion relative to GEARS."""
+
         self.drive_units(1)
-        
+
         match self.direction % 4:
             case 0:
                 self.y += 1
@@ -84,43 +86,65 @@ class Drivetrain:
                 self.x -= 1
 
     def drive_to_point_robot_relative(self, point: tuple[float, float]) -> None:
+        """Drive to point relative to current position of GEARS. Positive x value indicates point to the right of the GEARS, positive y value indicates point to the front of the GEARS."""
+
         x, y = point[0], point[1]
-  
+
         if y < 0:
-            self.turn_left()
-            self.turn_left()
+            self.turn_counterclockwise()
+            self.turn_counterclockwise()
             x *= -1
-        
+
         self.drive_units(abs(y))
 
         if x > 0:
-            self.turn_right()
+            self.turn_clockwise()
         elif x < 0:
-            self.turn_left()
+            self.turn_counterclockwise()
 
         self.drive_units(abs(x))
 
     def drive_to_points(self, points: list[tuple[float, float]]):
+        """
+        Drive to a series of points. Points should be defined relative to the fixed origin point where the GEARS starts.
+
+        :param points: list of points for GEARS to drive to
+        """
+
         right = np.array([[0, -1], [1, 0]])
         left = np.array([[0, 1], [-1, 0]])
-        
+
         for i in range(len(points) - 1):
             robot_relative_point = np.subtract(points[i + 1], points[i])
-            
+
             for j in range(abs(self.direction)):
                 if self.direction > 0:
                     robot_relative_point = np.matmul(right, robot_relative_point)
                 elif self.direction < 0:
                     robot_relative_point = np.matmul(left, robot_relative_point)
-                    
+
             self.drive_to_point_robot_relative(robot_relative_point)
-            print(f"Drove to {points[i+1]} with vector {robot_relative_point}")
-            sleep(5)
-                    
+            print(
+                f"[Drivetrain] Drove to {points[i + 1]} with vector {robot_relative_point}"
+            )
+            sleep(1)
+
     def turn_with_speed(self, speed: float) -> None:
+        """
+        Turn in-place with a constant speed. Positive speed indicates counterclockwise rotation.
+
+        :param speed: speed to rotate at in [-1, 1]
+        """
+
         self.drive_differential(-speed, -speed)
 
-    def turn_to_angle(self, target_angle: float):
+    def turn_to_angle(self, target_angle: float) -> None:
+        """
+        Turn in-place to a target angle. Positive angle indicates counterclockwise rotation.
+
+        :param target_angle: angle to turn to (in degrees)
+        """
+
         current_angle = 0
         error = target_angle - current_angle
         e_prev = 0
@@ -130,8 +154,8 @@ class Drivetrain:
         kI = 0
         kD = 0
 
-        while abs(error) > 1:
-            current_angle += self.imu.getGyro()[2] * dt
+        while abs(error) > 0.5:
+            current_angle += self.imu.angular_velocity * dt
             error = target_angle - current_angle
 
             p = kP * error
@@ -147,18 +171,20 @@ class Drivetrain:
 
             self.turn_with_speed(effort)
             sleep(dt)
-            
+
         self.stop()
 
-    def turn_right(self):
-        self.turn_to_angle(-90)
-        self.direction += 1
-        print(f"Turn right k = {self.direction}")
+    def turn_counterclockwise(self) -> None:
+        """Turn counterclockwise in-place 90 degrees."""
 
-    def turn_left(self):
         self.turn_to_angle(90)
         self.direction -= 1
-        print(f"Turn left k = {self.direction}")
+
+    def turn_clockwise(self) -> None:
+        """Turn clockwise in-place 90 degrees."""
+
+        self.turn_to_angle(-90)
+        self.direction += 1
 
     def stop(self) -> None:
         """Stop the drivetrain."""

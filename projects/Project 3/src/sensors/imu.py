@@ -10,7 +10,10 @@ class IMU:
 
         self.sensor = IMUSensor()
 
-    def angle(self) -> float:
+    @property
+    def angular_velocity(self) -> float:
+        """Angular velocity of GEARS."""
+
         return self.sensor.getGyro()[2]
 
     @property
@@ -19,5 +22,7 @@ class IMU:
 
         return norm(self.sensor.getMag())
 
-    def log(self) -> str:
-        return f"[IMU] (Angle) {self.angle()} deg / s"
+    def log(self) -> None:
+        """Log angular velocity (in deg / ) of GEARS."""
+        
+        print(f"[IMU] | (Angle) {self.angular_velocity} deg / s"
