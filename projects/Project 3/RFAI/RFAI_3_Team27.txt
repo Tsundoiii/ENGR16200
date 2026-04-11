@@ -1,0 +1,33 @@
+MEMORANDUM:
+To: Dr. Leandra Wilson, Lead Engineer, L3Harris Disaster Response Division
+From: Team 27
+Subject: REQUEST FOR ADDITIONAL INFORMATION
+
+Team 27 requests answers to the following questions from the Project Oversight Team.
+
+Sincerely,
+
+Team 27
+
+============================================================
+Team Member Names:
+1) Aurora Chen
+2) Kai Hillery
+3) Noopura Nambiar
+4) Ella Walsworth
+============================================================
+Question 1:
+Is the maze solvable by only following the right wall from start to end?
+============================================================
+Question 2:
+How many sensors are allowed to be on the GEARS?
+============================================================
+Question 3:
+
+============================================================
+Question 4:
+
+============================================================
+Question 5:
+
+============================================================
