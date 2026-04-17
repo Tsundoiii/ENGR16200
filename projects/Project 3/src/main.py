@@ -69,7 +69,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        task34()
+        task12()
     except KeyboardInterrupt:
         drivetrain.stop()
         drivetrain.write_map(1)

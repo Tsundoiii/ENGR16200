@@ -18,7 +18,7 @@ class Drivetrain:
 
         self.wheel_radius = 3.4
         self.gear_ratio = 40 / 24
-        self.unit_distance = 40
+        self.unit_distance = 20
 
         self.direction = 0
 
@@ -230,17 +230,17 @@ class Drivetrain:
         print(self.maze)
         maze_x, maze_y = self.robot_relative_point_to_maze(self.position)
         self.maze[maze_y][maze_x] = 1
-        self.write_map(1)
+        #self.write_map(1)
 
 
     def write_map(self, n: int) -> None:
         last_position_maze = self.robot_relative_point_to_maze(self.last_position)
         #self.maze[last_position_maze[1]][last_position_maze[0]] = 4
-        #self.maze = np.flipud(self.maze)
+        self.maze = np.flipud(self.maze)
 
 
         buffer = StringIO()
-        np.savetxt(buffer, self.maze, delimiter=",", fmt='%d')
+        np.savetxt(buffer, self.maze, delimiter=",", fmt="%d")
 
         with open("../output/team27_map.csv", "w+") as map:
             map.writelines([
