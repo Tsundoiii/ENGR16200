@@ -25,4 +25,4 @@ class IMU:
     def log(self) -> None:
         """Log angular velocity (in deg / ) of GEARS."""
         
-        print(f"[IMU] | (Angle) {self.angular_velocity} deg / s"
+        print(f"[IMU] | (Angle) {self.angular_velocity} deg / s")

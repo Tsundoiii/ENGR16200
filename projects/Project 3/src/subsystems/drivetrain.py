@@ -1,29 +1,36 @@
 from math import pi
 from time import sleep
+from io import StringIO
 from buildhat import Motor
-from basehat import IMUSensor
 import numpy as np
 
 
 class Drivetrain:
     """Drivetrain of GEARS."""
 
-    def __init__(self) -> None:
+    def __init__(self, imu) -> None:
         """Create drivetrain of GEARS."""
 
-        self.imu = IMUSensor()
+        self.imu = imu
 
-        self.left_motor = Motor("D")
-        self.right_motor = Motor("C")
+        self.left_motor: Motor = Motor("D")
+        self.right_motor: Motor = Motor("C")
 
         self.wheel_radius = 3.4
         self.gear_ratio = 40 / 24
-        self.unit_distance = 10
+        self.unit_distance = 40
 
         self.direction = 0
 
         self.x = 0
         self.y = 0
+        self.shift = 0
+
+        self.maze = np.array([5], ndmin=2)
+
+    @property
+    def position(self) -> tuple[int, int]:
+        return (self.x, self.y)
 
     def drive_differential(self, left_speed: float, right_speed: float):
         """
@@ -75,6 +82,8 @@ class Drivetrain:
 
         self.drive_units(1)
 
+        self.last_position = self.position
+
         match self.direction % 4:
             case 0:
                 self.y += 1
@@ -84,6 +93,13 @@ class Drivetrain:
                 self.y -= 1
             case 3:
                 self.x -= 1
+            case _:
+                pass
+
+        print(self.position)
+        self.add_point()
+
+        print(self.maze)
 
     def drive_to_point_robot_relative(self, point: tuple[float, float]) -> None:
         """Drive to point relative to current position of GEARS. Positive x value indicates point to the right of the GEARS, positive y value indicates point to the front of the GEARS."""
@@ -114,10 +130,12 @@ class Drivetrain:
         right = np.array([[0, -1], [1, 0]])
         left = np.array([[0, 1], [-1, 0]])
 
+        points.insert(0, (0, 0))
+
         for i in range(len(points) - 1):
             robot_relative_point = np.subtract(points[i + 1], points[i])
 
-            for j in range(abs(self.direction)):
+            for _ in range(abs(self.direction)):
                 if self.direction > 0:
                     robot_relative_point = np.matmul(right, robot_relative_point)
                 elif self.direction < 0:
@@ -148,14 +166,15 @@ class Drivetrain:
         current_angle = 0
         error = target_angle - current_angle
         e_prev = 0
-        dt = 0.05
+        dt = 0.1
 
         kP = 0.08
         kI = 0
         kD = 0
 
-        while abs(error) > 0.5:
+        while abs(error) > 0.1:
             current_angle += self.imu.angular_velocity * dt
+            print(current_angle)
             error = target_angle - current_angle
 
             p = kP * error
@@ -191,3 +210,45 @@ class Drivetrain:
 
         self.left_motor.stop()
         self.right_motor.stop()
+
+    def robot_relative_point_to_maze(self, point: tuple[int, int]) -> tuple[int, int]:
+        return (point[0] + self.shift, point[1])
+
+    def add_point(self):
+        max_y, max_x = self.maze.shape
+
+        if self.x >= max_x:
+            self.maze = np.pad(self.maze, ((0, 0), (0, 1)))
+        
+        if self.y >= max_y:
+            self.maze = np.pad(self.maze, ((0, 1), (0, 0)))
+
+        if self.x < 0 and abs(self.x) > self.shift:
+            self.shift = abs(self.x)
+            self.maze = np.pad(self.maze, ((0, 0), (1, 0)))
+
+        print(self.maze)
+        maze_x, maze_y = self.robot_relative_point_to_maze(self.position)
+        self.maze[maze_y][maze_x] = 1
+        self.write_map(1)
+
+
+    def write_map(self, n: int) -> None:
+        last_position_maze = self.robot_relative_point_to_maze(self.last_position)
+        #self.maze[last_position_maze[1]][last_position_maze[0]] = 4
+        #self.maze = np.flipud(self.maze)
+
+
+        buffer = StringIO()
+        np.savetxt(buffer, self.maze, delimiter=",", fmt='%d')
+
+        with open("../output/team27_map.csv", "w+") as map:
+            map.writelines([
+                "Team: 27\n",
+                f"Map: {n}\n"
+                f"Unit Length: {self.unit_distance}\n"
+                "Unit: cm\n",
+                f"Origin:\n"
+                "Notes:\n",
+                buffer.getvalue()
+            ])

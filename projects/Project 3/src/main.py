@@ -1,10 +1,13 @@
+from sys import exit
 from subsystems.drivetrain import Drivetrain
+from subsystems.cargo_hold import CargoHold
 from sensors.distance_sensor import DistanceSensor
+from sensors.imu import IMU
 from sensors.ir_sensor import InfraredSensor
-from time import sleep
 import numpy as np
 
-drivetrain = Drivetrain()
+drivetrain = Drivetrain(IMU())
+cargo_hold = CargoHold()
 distance_sensor = DistanceSensor()
 ir_sensor = InfraredSensor()
 
@@ -22,11 +25,12 @@ def drive():
 def sense():
     global state
 
-    distance = distance_sensor.distance
-    print(distance)
-
-    if distance is None or distance > 10:
+    # if distance_sensor.all_clear:
+        # state = "deposit"
+    if distance_sensor.front_clear:
         state = "drive"
+    elif distance_sensor.right_clear:
+        state = "turn_clockwise"
     else:
         state = "turn_counterclockwise"
 
@@ -44,66 +48,28 @@ def turn_clockwise():
     drivetrain.turn_clockwise()
     state = "sense"
 
+def deposit():
+    cargo_hold.deposit()
+    drivetrain.write_map(1)
+    exit("[Robot] GEARS mission complete")
 
-def task1():
-    while True:
-        print(state)
-        eval(state)()
+def task12():
+    main()
 
+def task34():
+    drivetrain.drive_to_points([(1,2), (3, 2), (0, 1)])
 
-def task2():
-    drivetrain.turn_to_angle(-135)
-
-
-def task3(self, point: tuple[float, float]) -> None:
-    while point != (drivetrain.x, drivetrain.y):
-        x, y = point[0], point[1]
-        v = (drivetrain.x - x, drivetrain.y - y)
-
-        right = np.array([[0, -1], [1, 0]])
-        left = np.array([[0, 1], [-1, 0]])
-
-        for j in range(abs(drivetrain.direction)):
-            if drivetrain.direction > 0:
-                x, y = tuple(np.matmul(right, v))
-            elif drivetrain.direction < 0:
-                x, y = tuple(np.matmul(left, v))
-
-        if y == 0:
-            continue
-        if y < 0:
-            self.turn_left()
-            self.turn_left()
-            x *= -1
-
-        if (abs(drivetrain.imu.getGyro()[1]) > 100) or (
-            ir_sensor.average is not None and ir_sensor.average > 20
-        ):
-            self.turn_right()
-            continue
-
-        self.drive_unit()
-
-        if x == 0:
-            continue
-        if x > 0:
-            self.turn_right()
-        elif x < 0:
-            self.turn_left()
-
-        self.drive_unit()
-
-
-def task4():
-    drivetrain.drive_to_points([(0, 0), (1, 2), (3, 0), (3, 2), (0, 3)])
-
+def task56():
+    main()
 
 def main():
-    task1()
+    while True:
+        eval(state)()
 
 
 if __name__ == "__main__":
     try:
-        main()
+        task34()
     except KeyboardInterrupt:
         drivetrain.stop()
+        drivetrain.write_map(1)
