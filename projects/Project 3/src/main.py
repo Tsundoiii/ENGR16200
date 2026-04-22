@@ -30,9 +30,9 @@ def sense():
     if distance_sensor.front_clear:
         state = "drive"
     elif distance_sensor.right_clear:
-        state = "turn_clockwise"
-    else:
         state = "turn_counterclockwise"
+    else:
+        state = "turn_clockwise"
 
 
 def turn_counterclockwise():
@@ -57,7 +57,7 @@ def task12():
     main()
 
 def task34():
-    drivetrain.drive_to_points([(1,2), (3, 2), (0, 1)])
+    drivetrain.drive_to_points([(2,0), (2,1), (3, 2), (2, 3), (0,3)])
 
 def task56():
     main()
@@ -69,7 +69,7 @@ def main():
 
 if __name__ == "__main__":
     try:
-        task12()
+        task34()
     except KeyboardInterrupt:
         drivetrain.stop()
         drivetrain.write_map(1)

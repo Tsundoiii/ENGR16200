@@ -18,7 +18,7 @@ class Drivetrain:
 
         self.wheel_radius = 3.4
         self.gear_ratio = 40 / 24
-        self.unit_distance = 20
+        self.unit_distance = 40
 
         self.direction = 0
 

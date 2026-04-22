@@ -16,7 +16,8 @@ class DistanceSensor:
     @property
     def front_distance(self) -> float | None:
         """Distance of nearest object in front of GEARS (in cm), or None if no objects detected."""
-
+        
+        print("Front dist:" + str(self.front_sensor.getDist))
         return self.front_sensor.getDist
     
     # @property
@@ -28,7 +29,7 @@ class DistanceSensor:
     @property
     def right_distance(self) -> float | None:
         """Distance of nearest object to the right of GEARS (in cm), or None if no objects detected."""
-
+        print("Right dist:" + str(self.right_sensor.getDist))
         return self.right_sensor.getDist
     
     @property
