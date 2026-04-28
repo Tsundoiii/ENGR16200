@@ -13,8 +13,8 @@ class Drivetrain:
 
         self.imu = imu
 
-        self.left_motor: Motor = Motor("D")
-        self.right_motor: Motor = Motor("C")
+        self.left_motor: Motor = Motor("A")
+        self.right_motor: Motor = Motor("D")
 
         self.wheel_radius = 3.4
         self.gear_ratio = 40 / 24
@@ -27,6 +27,9 @@ class Drivetrain:
         self.shift = 0
 
         self.maze = np.array([5], ndmin=2)
+
+        self.infrared = ()
+        self.magnets = ()
 
     @property
     def position(self) -> tuple[int, int]:
@@ -97,9 +100,9 @@ class Drivetrain:
                 pass
 
         print(self.position)
-        self.add_point()
+        self.add_point(self.position, 1)
 
-        print(self.maze)
+        print(np.flipud(self.maze))
 
     def drive_to_point_robot_relative(self, point: tuple[float, float]) -> None:
         """Drive to point relative to current position of GEARS. Positive x value indicates point to the right of the GEARS, positive y value indicates point to the front of the GEARS."""
@@ -174,7 +177,6 @@ class Drivetrain:
 
         while abs(error) > 0.1:
             current_angle += self.imu.angular_velocity * dt
-            print(current_angle)
             error = target_angle - current_angle
 
             p = kP * error
@@ -214,41 +216,91 @@ class Drivetrain:
     def robot_relative_point_to_maze(self, point: tuple[int, int]) -> tuple[int, int]:
         return (point[0] + self.shift, point[1])
 
-    def add_point(self):
+    def robot_relative_point_to_absolute_point(self, robot_relative_point: tuple[int, int]) -> tuple[int, int]:
+        right = np.array([[0, -1], [1, 0]])
+        left = np.array([[0, 1], [-1, 0]])
+
+        for _ in range(abs(self.direction)):
+            if self.direction > 0:
+                robot_relative_point = np.matmul(right, robot_relative_point)
+            elif self.direction < 0:
+                robot_relative_point = np.matmul(left, robot_relative_point)
+
+        return np.add(self.position, robot_relative_point)
+
+    def add_point(self, point: tuple[int, int], value: int):
         max_y, max_x = self.maze.shape
 
-        if self.x >= max_x:
+        if point[0] >= max_x:
             self.maze = np.pad(self.maze, ((0, 0), (0, 1)))
-        
-        if self.y >= max_y:
+
+        if point[1] >= max_y:
             self.maze = np.pad(self.maze, ((0, 1), (0, 0)))
 
-        if self.x < 0 and abs(self.x) > self.shift:
-            self.shift = abs(self.x)
+        if point[0] < 0 and abs(point[0]) > self.shift:
+            self.shift = abs(point[0])
             self.maze = np.pad(self.maze, ((0, 0), (1, 0)))
 
-        print(self.maze)
-        maze_x, maze_y = self.robot_relative_point_to_maze(self.position)
-        self.maze[maze_y][maze_x] = 1
-        #self.write_map(1)
+        maze_x, maze_y = self.robot_relative_point_to_maze(point)
+        print(f"{maze_x=} {maze_y=}")
+        print(f"{self.maze=}")
 
+        try:
+            self.maze[maze_y][maze_x] = value
+        except IndexError:
+            print("[Drivetrain] Map index error")
+            pass
 
-    def write_map(self, n: int) -> None:
-        last_position_maze = self.robot_relative_point_to_maze(self.last_position)
-        #self.maze[last_position_maze[1]][last_position_maze[0]] = 4
-        self.maze = np.flipud(self.maze)
+    def add_infrared(self, value: float) -> None:
+        source = self.robot_relative_point_to_absolute_point((0, 1))
+        print(f"{source=}")
+        self.infrared = (source, value)
+        self.add_point(source, 2)
+    
+    def add_magnet(self, value: float) -> None:
+        source = self.robot_relative_point_to_absolute_point((0, 1))
+        self.magnets = (source, value)
+        self.add_point(source, 3)
 
+    def write_output(self, n: int) -> None:
+        self.add_point(self.last_position, 4)
+        flipped_maze = np.flipud(self.maze)
+        print(f"{flipped_maze=}")
 
-        buffer = StringIO()
-        np.savetxt(buffer, self.maze, delimiter=",", fmt="%d")
+        match self.direction:
+            case 0:
+                flipped_maze = np.delete(flipped_maze, 0, 0)
+            case 1:
+                flipped_maze = np.delete(flipped_maze, -1, 1)
+            case 2:
+                flipped_maze = np.delete(flipped_maze, -1, 0)
+            case 3:
+                flipped_maze = np.delete(flipped_maze, 0, 1)
+
+        map_buffer = StringIO()
+        np.savetxt(map_buffer, flipped_maze, delimiter=",", fmt="%d")
+
+        print(self.magnets)
+        print(self.infrared)
 
         with open("../output/team27_map.csv", "w+") as map:
-            map.writelines([
+            map.writelines(
+                [
+                    "Team: 27\n",
+                    f"Map: {n}\n", f"Unit Length: {self.unit_distance}\n", "Unit: cm\n",
+                    f"Origin:\n", "Notes:\n",
+                    map_buffer.getvalue(),
+                ]
+            )
+
+        with open("../output/team27_hazards.csv", "w+") as output:
+            output.writelines([
                 "Team: 27\n",
-                f"Map: {n}\n"
-                f"Unit Length: {self.unit_distance}\n"
-                "Unit: cm\n",
-                f"Origin:\n"
-                "Notes:\n",
-                buffer.getvalue()
+                f"Map: {n}\n,",
+                "Notes:\n\n",
+                "Hazard Type, Parameter of Interest, Parameter Value, Hazard X Coordinate (cm), Hazard Y Coordinate (cm)",
+                f"Electrical/Magnetic Activity Source, Field strength (uT), {self.magnets[1]}, {self.magnets[0][0]}, {self.magnets[0][1]}" if self.magnets else "",
+                f"High Temperature Heat Source, Radiated Power (W), {self.infrared[1]}, {self.infrared[0][0]}, {self.infrared[0][1]}" if self.infrared else ""
             ])
+
+        print("Wrote map")

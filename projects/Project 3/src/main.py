@@ -1,15 +1,13 @@
 from sys import exit
-from subsystems.drivetrain import Drivetrain
-from subsystems.cargo_hold import CargoHold
-from sensors.distance_sensor import DistanceSensor
-from sensors.imu import IMU
-from sensors.ir_sensor import InfraredSensor
-import numpy as np
+from time import sleep
+from subsystems import *
+from sensors import *
 
-drivetrain = Drivetrain(IMU())
-cargo_hold = CargoHold()
 distance_sensor = DistanceSensor()
-ir_sensor = InfraredSensor()
+imu = IMU()
+infrared_sensor = InfraredSensor()
+drivetrain = Drivetrain(imu)
+cargo_hold = CargoHold()
 
 state = "drive"
 """Current state of GEARS. Value of variable corresponds to name of state functions defined below."""
@@ -25,11 +23,17 @@ def drive():
 def sense():
     global state
 
-    # if distance_sensor.all_clear:
-        # state = "deposit"
-    if distance_sensor.front_clear:
+    if infrared_sensor.source_present:
+        drivetrain.add_infrared(infrared_sensor.value)
+        state = "turn_counterclockwise"
+    # elif imu.source_present:
+    #     drivetrain.add_magnet(imu.magnetic_field)
+    #     state = "turn_clockwise"
+    elif distance_sensor.all_clear:
+        state = "deposit"
+    elif distance_sensor.front_clear:
         state = "drive"
-    elif distance_sensor.right_clear:
+    elif distance_sensor.left_clear:
         state = "turn_counterclockwise"
     else:
         state = "turn_clockwise"
@@ -48,28 +52,29 @@ def turn_clockwise():
     drivetrain.turn_clockwise()
     state = "sense"
 
+
 def deposit():
+    drivetrain.write_output(1)
     cargo_hold.deposit()
-    drivetrain.write_map(1)
+    drivetrain.drive_units(0.5)
     exit("[Robot] GEARS mission complete")
 
-def task12():
-    main()
-
-def task34():
-    drivetrain.drive_to_points([(2,0), (2,1), (3, 2), (2, 3), (0,3)])
-
-def task56():
-    main()
 
 def main():
     while True:
+        distance_sensor.log()
+        imu.log_magnet()
+        infrared_sensor.log()
+
+        print(state)
         eval(state)()
+        drivetrain.write_output(1)
+        # sleep(1)
 
 
 if __name__ == "__main__":
     try:
-        task34()
+        main()
     except KeyboardInterrupt:
+        cargo_hold.deposit()
         drivetrain.stop()
-        drivetrain.write_map(1)
